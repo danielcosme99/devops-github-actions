@@ -1,32 +1,29 @@
-name: Build
-on:
-  push:
-    branches:
-      master
-    paths:
-        - "src/**"
-        - "package.json"
-        - ".github/workflows/node.js.yml"
-
+name: ci-cd-vue
+on: 
+  workflow_call:
+    inputs:
+      node-version:
+        required: true
+        type: string
+        default: "12"
+        description: "version de Node.js"
+      runner:
+          required: false
+          type: string
+          default: ubuntu-latest
+          description: "version de SO"
 jobs:
     build:
         name: Build compiled JS version
-        runs-on: self-hosted
-        strategy:
-          matrix:
-            node-version: [16.x]
-
+        runs-on: ${{ inputs.runner }}
         steps:
-        
           - name: Checkout repository
             uses: actions/checkout@v3
-
-        
-          - name: Use Node.js ${{ matrix.node-version }}
+          - name: Use Node.js
             uses: actions/setup-node@v2
             with:
-              node-version: ${{ matrix.node-version }}
-          run: npm i
-          run: npm run build
-          run: pm2 list
-          run: pm2 restart 0
+              node-version: ${{ inputs.node-version }}
+          - run: npm i
+          - run: npm run build
+          - run: pm2 list
+          - run: pm2 restart 0
